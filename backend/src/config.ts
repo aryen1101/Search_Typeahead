@@ -16,10 +16,11 @@ export type Ranking = "basic" | "recency";
 export const config = {
   port: num("PORT", 8080),
 
-  redisNodes: str("REDIS_NODES", "")
+  redisNodes: str("REDIS_NODES", "localhost:6379")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),
+
 
   cacheTtlSeconds: num("CACHE_TTL_SECONDS", 60),
   cacheVirtualNodes: num("CACHE_VIRTUAL_NODES", 150),
