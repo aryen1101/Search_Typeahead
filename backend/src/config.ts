@@ -48,5 +48,4 @@ export const config = {
   dbPath: str("DB_PATH", "./data/typeahead.db"),
 
   seedFile: str("SEED_FILE", "../data/queries.tsv"),
-  seedTarget: num("SEED_TARGET", 120000),
 };
