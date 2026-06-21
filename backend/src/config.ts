@@ -49,3 +49,5 @@ export const config = {
 
   seedFile: str("SEED_FILE", "../data/queries.tsv"),
 };
+
+export type AppConfig = typeof config;

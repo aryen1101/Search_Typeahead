@@ -2,7 +2,7 @@ import { Database } from "../db/Database";
 import { Metrics } from "../metrics/Metrics";
 import { log } from "../logger";
 
-export class RecenyDecay {
+export class RecencyDecay {
   private timer: NodeJS.Timeout | null = null;
 
   constructor(
