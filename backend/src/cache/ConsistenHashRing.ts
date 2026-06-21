@@ -48,7 +48,7 @@ export class ConsistentHashRing {
     let high = this.points.length - 1;
     let ans = 0;
     while (low <= high) {
-      const mid = (low + high) / 2;
+      const mid = Math.floor((low + high) / 2);
       if (this.points[mid].hash >= h) {
         ans = mid;
         high = mid - 1;

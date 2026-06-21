@@ -17,6 +17,8 @@ async function loadFromFile(db: Database, file: string): Promise<number> {
   const flush = () => {
     if (buffer.length) {
       db.bulkInsertSeed(buffer, now);
+      total += buffer.length;
+      buffer = [];
     }
   };
 

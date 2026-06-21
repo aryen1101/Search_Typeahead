@@ -1,4 +1,4 @@
-import { normalize } from "node:path";
+import { normalize } from "../db/normalize";
 import { CacheCluster } from "../cache/CacheCluster";
 import { Ranking } from "../config";
 import { Database } from "../db/Database";

@@ -31,6 +31,13 @@ export function buildRouter(deps: Deps): Router {
     });
   });
 
+  router.get("/suggest", async (req: Request, res: Response) => {
+    const q = typeof req.query.q === "string" ? req.query.q : "";
+    const ranking = parseRanking(req.query.ranking, config.defaultRanking);
+    const result = await suggestions.suggest(q, ranking);
+    res.json(result);
+  });
+
   router.post("/search", async (req: Request, res: Response) => {
     const query = typeof req.body?.query === "string" ? req.body.query : "";
     if (!query.trim()) {

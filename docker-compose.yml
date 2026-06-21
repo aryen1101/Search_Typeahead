@@ -1,0 +1,103 @@
+
+services:
+  # ---- Distributed cache nodes (3 logical/physical cache servers) -----------
+  redis-cache-1:
+    image: redis:7-alpine
+    container_name: ta-redis-1
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis-cache-2:
+    image: redis:7-alpine
+    container_name: ta-redis-2
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis-cache-3:
+    image: redis:7-alpine
+    container_name: ta-redis-3
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ---- Backend API ----------------------------------------------------------
+  backend:
+    build: ./backend
+    container_name: ta-backend
+    environment:
+      PORT: "8080"
+      # Comma-separated list of cache nodes. The backend builds a consistent-hash
+      # ring over these. Leave empty to use in-process in-memory cache nodes.
+      REDIS_NODES: "redis-cache-1:6379,redis-cache-2:6379,redis-cache-3:6379"
+      CACHE_TTL_SECONDS: "60"
+      CACHE_VIRTUAL_NODES: "150"
+      SUGGEST_LIMIT: "10"
+      BATCH_FLUSH_MS: "2000"
+      BATCH_MAX_SIZE: "500"
+      DECAY_INTERVAL_MS: "60000"
+      DECAY_RATE: "0.9"
+      DEFAULT_RANKING: "recency"
+      DB_PATH: "/data/typeahead.db"
+      MIN_PREFIX_LENGTH: "1"
+      # Open-source dataset only. Run `node scripts/fetch-dataset.mjs` BEFORE
+      # `docker compose up` so ./data/queries.tsv exists (mounted at /seed/queries.tsv).
+      SEED_FILE: "/seed/queries.tsv"
+      # Kafka write-behind ingestion. With this set, POST /search publishes to Kafka
+      # and the consumer writes SQLite + warms Redis. Empty -> in-memory batch writer.
+      KAFKA_BROKERS: "kafka:9092"
+      KAFKA_TOPIC: "search-events"
+      KAFKA_GROUP_ID: "typeahead-consumer"
+      KAFKA_PARTITIONS: "3"
+    volumes:
+      - backend-data:/data
+      - ./data:/seed:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis-cache-1:
+        condition: service_healthy
+      redis-cache-2:
+        condition: service_healthy
+      redis-cache-3:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  kafka:
+    image: apache/kafka:3.8.1
+    container_name: ta-kafka
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 25s
+
+
+
+volumes:
+  backend-data:

@@ -22,7 +22,7 @@ export function createApp(deps: {
   intake: SearchIntake;
 }): express.Express {
   const server = express();
-  server.use(cors);
+  server.use(cors());
   server.use(express.json());
 
   server.use((req, _res, next) => {
