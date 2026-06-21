@@ -12,7 +12,7 @@ export class Metrics {
   startedAt = Date.now();
 
   recordSuggest(latency: number, hit: boolean): void {
-    this.searchRequest++;
+    this.suggestRequests++;
     if (hit) this.cacheHits++;
     else this.cacheMisses++;
     if (this.latencies.length >= this.maxSamples) this.latencies.shift();

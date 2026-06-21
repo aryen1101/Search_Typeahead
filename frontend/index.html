@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typeahead Search</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔎</text></svg>" />
+</head>
+<body>
+  <main class="app">
+    <h1 class="title">🔎 Typeahead Search</h1>
+
+    <!-- Two ranking options -->
+    <div class="ranking-toggle" role="radiogroup" aria-label="Ranking mode">
+      <button class="rank-btn active" data-ranking="recency" role="radio" aria-checked="true">
+        ✨ Trending (recency)
+      </button>
+      <button class="rank-btn" data-ranking="basic" role="radio" aria-checked="false">
+        📊 Popular (all-time)
+      </button>
+    </div>
+
+    <!-- Search box + suggestion dropdown -->
+    <div class="search-wrap">
+      <div class="search-box" id="searchBox">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input
+          id="searchInput"
+          type="text"
+          class="search-input"
+          placeholder="Start typing… e.g. ‘iph’, ‘java’"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          role="combobox"
+          aria-expanded="false"
+          aria-controls="suggestList"
+          aria-autocomplete="list"
+        />
+        <button class="clear-btn" id="clearBtn" aria-label="Clear" hidden>✕</button>
+        <button class="search-btn" id="searchBtn">Search</button>
+      </div>
+
+      <div class="suggest-panel" id="suggestPanel" hidden>
+        <ul class="suggest-list" id="suggestList" role="listbox" aria-label="Suggestions"></ul>
+      </div>
+    </div>
+
+    <!-- Dummy search response -->
+    <div class="response-banner" id="responseBanner" hidden></div>
+
+    <!-- Trending searches section -->
+    <section class="trending">
+      <div class="trending-head">
+        <h2>🔥 Trending searches</h2>
+        <button class="refresh-btn" id="refreshTrending" aria-label="Refresh trending">↻</button>
+      </div>
+      <div class="trending-chips" id="trendingChips">
+        <div class="trending-loading"><span class="spinner"></span> Loading…</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

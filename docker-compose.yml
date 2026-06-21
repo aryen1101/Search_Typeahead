@@ -97,7 +97,14 @@ services:
       retries: 12
       start_period: 25s
 
-
+  # ---- Frontend (static SPA served by nginx, proxies /api -> backend) -------
+  frontend:
+    build: ./frontend
+    container_name: ta-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
 volumes:
   backend-data:

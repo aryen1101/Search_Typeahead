@@ -1,1 +1,12 @@
 /node_modules
+/dist
+
+# Local run artifacts — SQLite DB created when running the backend on localhost
+# (DB_PATH defaults to ./data/typeahead.db). Not committed; rebuilt from the dataset.
+/data
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.log
+.env
