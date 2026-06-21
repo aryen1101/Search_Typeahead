@@ -1,3 +1,4 @@
+import * as path from "path";
 import { config } from "./config";
 import { Database } from "./db/Database";
 import { seedIfEmpty } from "./db/seed";
@@ -26,7 +27,10 @@ async function main() {
   });
 
   const db = new Database(config.dbPath);
-  await seedIfEmpty(db, { seedFile: config.seedFile });
+  await seedIfEmpty(db, {
+    seedFile: config.seedFile,
+    fallbackDir: path.dirname(config.dbPath),
+  });
 
   const cache = new CacheCluster(config.redisNodes, config.cacheVirtualNodes);
 

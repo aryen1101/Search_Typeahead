@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as readline from "readline";
 import { Database } from "./Database";
 import { normalize } from "./normalize";
+import { downloadDataset } from "./fetchDataset";
 import { log } from "../logger";
 
 async function loadFromFile(db: Database, file: string): Promise<number> {
@@ -46,7 +47,7 @@ async function loadFromFile(db: Database, file: string): Promise<number> {
 
 export async function seedIfEmpty(
   db: Database,
-  opts: { seedFile: string },
+  opts: { seedFile: string; fallbackDir: string },
 ): Promise<number> {
   if (!db.isEmpty()) {
     const n = db.size();
@@ -54,17 +55,16 @@ export async function seedIfEmpty(
     return n;
   }
 
-  if (!opts.seedFile || !fs.existsSync(opts.seedFile)) {
-    throw new Error(
-      `Dataset file not found at "${opts.seedFile}". ` +
-        `This project loads an open-source dataset only (no synthetic generation). ` +
-        `Run:  node scripts/fetch-dataset.mjs   to download it, then start again. ` +
-        `(In Docker the file must exist in ./data, mounted at /seed/queries.tsv.)`,
+  let file = opts.seedFile;
+  if (!file || !fs.existsSync(file)) {
+    log.info(
+      `Dataset not found at "${file}". Downloading open-source dataset automatically...`,
     );
+    file = await downloadDataset(opts.fallbackDir);
   }
 
-  log.info(`Loading open-source dataset: ${opts.seedFile}`);
-  const n = await loadFromFile(db, opts.seedFile);
+  log.info(`Loading open-source dataset: ${file}`);
+  const n = await loadFromFile(db, file);
   log.info(
     `Loaded ${n.toLocaleString()} rows (${db.size().toLocaleString()} unique queries).`,
   );

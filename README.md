@@ -5,6 +5,9 @@ searches, and serves suggestions with low latency from a **distributed cache** (
 consistent hashing) backed by SQLite, with **write‑behind batching** via Kafka and a
 **recency‑aware trending** ranking.
 
+## Demo video
+https://drive.google.com/file/d/1KxaegMsXSIbjEC45-4T06HSE5j6S_TzJ/view?usp=drive_link
+
 ---
 
 ## Documentation index
@@ -43,36 +46,25 @@ Docker Compose. Frontend is dependency‑free HTML/CSS/JS.
 
 ## Setup & run
 
-### Option A — Docker (recommended)
 ```bash
-node scripts/fetch-dataset.mjs     # 1) download the dataset → data/queries.tsv
-docker compose up -d --build       # 2) start redis×3 + kafka + backend + frontend
+docker compose up -d --build
 ```
+
 - Frontend: **http://localhost:3000**
 - Backend API: **http://localhost:8080**
 - Reset & re‑seed: `docker compose down -v && docker compose up -d`
 
-See [docs/DATASET.md](docs/DATASET.md) for dataset details.
-
-### Option B — Local backend (no Docker)
-```bash
-node scripts/fetch-dataset.mjs
-cd backend && npm install && npm run dev    # or: npm run build && npm start
-```
-With no `REDIS_NODES` / `KAFKA_BROKERS` set, the backend uses an in‑memory cache and
-in‑memory batch writer, so it runs standalone. SQLite is created at
-`backend/data/typeahead.db` (git‑ignored).
+The dataset is downloaded automatically on first start if it is missing — no separate
+step is needed. See [docs/DATASET.md](docs/DATASET.md) for details.
 
 ---
 
 ## Repository layout
 ```
 backend/     Express API, cache ring, SQLite, Kafka producer/consumer, services
-frontend/    Static SPA (HTML/CSS/JS) + nginx (serves UI, proxies /api → backend)
-scripts/     fetch-dataset.mjs (dataset), loadtest.mjs (performance)
-data/        queries.tsv (downloaded dataset; git-ignored)
+frontend/    Static SPA (HTML/CSS/JS) + nginx (serves UI, proxies /api to backend)
+scripts/     fetch-dataset.mjs (manual dataset download), loadtest.mjs (performance)
+data/        queries.tsv (auto-downloaded dataset)
 docs/        DATASET, ARCHITECTURE, API, PERFORMANCE_REPORT, DESIGN_CHOICES
-docker-compose.yml   redis×3 + kafka + backend + frontend
+docker-compose.yml   redis x3 + kafka + backend + frontend
 ```
-
-> Screenshots / demo video: add your own (run the stack, open http://localhost:3000).

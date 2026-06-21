@@ -35,25 +35,25 @@ of one‑ and two‑word queries.
 
 ## Loading instructions
 
-### 1. Download
-```bash
-node scripts/fetch-dataset.mjs                 # words + bigrams  → data/queries.tsv
-node scripts/fetch-dataset.mjs --words-only    # single words only (smaller)
-```
-The script writes `data/queries.tsv`. Requires internet access; there is **no synthetic
-fallback** — the dataset is mandatory.
-
-### 2. Ingestion (automatic on first start)
-The backend seeds the database on startup **only if it is empty**:
-
-- **Docker:** `data/queries.tsv` is mounted read‑only at `/seed/queries.tsv`
-  (`SEED_FILE`). `docker compose up` loads it on first run.
-- **Local:** the loader reads `../data/queries.tsv` relative to the backend.
+### Automatic (default)
+The backend seeds the database on startup if it is empty. If the dataset file is missing,
+it **downloads the dataset automatically** from the source URLs, saves it, and loads it —
+so `docker compose up` works on a fresh clone with no extra step. Requires internet access;
+there is no synthetic fallback.
 
 Loading streams the file line‑by‑line and inserts in batches of 5,000 inside SQLite
 transactions, so ~620k rows seed in a few seconds. Counts for duplicate queries are summed.
 
-### 3. Re‑seeding
+### Manual (optional)
+To fetch the dataset yourself beforehand (e.g. to inspect or cache it):
+```bash
+node scripts/fetch-dataset.mjs                 # words + bigrams -> data/queries.tsv
+node scripts/fetch-dataset.mjs --words-only    # single words only (smaller)
+```
+In Docker, `data/queries.tsv` is mounted at `/seed/queries.tsv` (`SEED_FILE`) and used if
+present; otherwise the auto‑download writes to the data volume.
+
+### Re‑seeding
 - **Docker:** `docker compose down -v` (removes the `backend-data` volume), then
   `docker compose up -d`.
 - **Local:** delete `backend/data/typeahead.db*` and restart.
