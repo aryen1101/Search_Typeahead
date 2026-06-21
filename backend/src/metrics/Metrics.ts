@@ -11,7 +11,7 @@ export class Metrics {
   cacheInvalidations = 0;
   startedAt = Date.now();
 
-  recodeSuggest(latency: number, hit: boolean): void {
+  recordSuggest(latency: number, hit: boolean): void {
     this.searchRequest++;
     if (hit) this.cacheHits++;
     else this.cacheMisses++;
